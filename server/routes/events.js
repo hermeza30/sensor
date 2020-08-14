@@ -3,76 +3,56 @@ const express = require("express");
 const EventSensor = require("../models/event");
 const app = express();
 
-io.on("connection", (scoket) => {
+io.on("connection", (client) => {
   console.log("cliente conectado");
-  scoket.on("disconnect", () => {
+
+  //disconect
+  client.on("disconnect", () => {
     console.log("cliente desconectado");
   });
-  scoket.on("createEvent", function(data,callback)  {
 
-    // createEvent(data).then(id=>{
-    //     returnListbyId(id).then(evnts=>callback(evnts));
-    // });
-
+  //LISTEN EVENT TO RETURN LIST ALL EVENTS BY IDSENSOR
+  client.on("listen", function (data) {
+    console.log(data)
+    returnEventsbyId(data).then((lista) => {
+      console.log(lista)
+      io.emit("returnList", lista);
+    });
   });
-//   client.emit("returnListEvents", function(callback)  {
-
-//     eventList().then(list=>{
-//         console.log(list)
-//         callback(list);
-//     });
-//   });
-scoket.emit('returnListEvents',[{id:222,precio:"2222"},{id:222,precio:"2222"}]);
 });
-function createEvent(data) {
+///FUNCTION RETURN EVENTS BY ID
+function returnEventsbyId(id) {
   return new Promise((resolve, reject) => {
-    let ev = new EventSensor({
-      sensorid: data.sensorId,
-      createat: data.createat,
-      value: data.value,
-    });
-    
-    ev.save((err, evt) => {
-        if (err) {
-           reject(err);
-          }
-        resolve(evt.sensorid);
+    EventSensor.find({ sensorid: id }, (err, event) => {
+      if (err) {
+        reject(err);
+      }
+      console.log(event);
+      resolve(event);
     });
   });
 }
-function returnListbyId(id){
-    console.log('entrando a la busqueda',id);
-    return new Promise((resolve,reject)=>{
-        EventSensor.find({sensorid:id},(err,event)=>{
-            if (err) {
-                reject(err);
-               }
-               console.log(event);
-               resolve(event);
-        });
+
+//POST EVENT
+app.post("/event", (req, res) => {
+  let body = req.body;
+  let ev = new EventSensor({
+    sensorid: body.sensorid,
+    createat: body.createat,
+    value: body.value,
+  });
+  ev.save((err, evt) => {
+    if (err) {
+      return res.status(500).json({
+        ok: false,
+        err,
+      });
+    }
+    res.status(200).json({
+      ok:true,
+      evt
     });
-}
-function eventList(){
-    return new Promise((resolve,reject)=>{
-        EventSensor.find((err,event)=>{
-            if (err) {
-                reject(err);
-               }
-               console.log('Retornando',event);
-               resolve(event);
-        });
-    });
-}
-app.get('/events',(req,res)=>{
-    EventSensor.find((err,event)=>{
-        if (err) {
-            // reject(err);
-           }
-           res.status(200).json({
-            ok:true,
-            event
-           });
-    });
-})
+  });
+});
 
 module.exports = app;
