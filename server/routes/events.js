@@ -13,9 +13,7 @@ io.on("connection", (client) => {
 
   //LISTEN EVENT TO RETURN LIST ALL EVENTS BY IDSENSOR
   client.on("listen", function (data) {
-    console.log(data)
     returnEventsbyId(data).then((lista) => {
-      console.log(lista)
       io.emit("returnList", lista);
     });
   });
@@ -27,7 +25,6 @@ function returnEventsbyId(id) {
       if (err) {
         reject(err);
       }
-      console.log(event);
       resolve(event);
     });
   });

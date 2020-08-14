@@ -1,6 +1,6 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const Sensor = require("../models/sensor.js");
+const {verifyToken}=require('../middleware/verifyToken');
 const app = express();
 
 
@@ -61,7 +61,6 @@ app.post("/sensor", (req, res) => {
 });
 app.put("/sensor/:id", (req, res) => {
   let id = req.params.id;
-  console.log(id);
   let body = req.body;
   let sensorupdate = new Sensor({
     name: body.name,
@@ -110,7 +109,7 @@ app.put("/sensor/:id", (req, res) => {
   });
 });
 
-app.delete("/sensor/:id", (req, res) => {
+app.delete("/sensor/:id",verifyToken, (req, res) => {
     let id = req.params.id;
 
     Sensor.findByIdAndDelete(id, (err, sensor) => {
