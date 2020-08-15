@@ -5,7 +5,7 @@ const app = express();
 
 
 
-app.get("/sensor", (req, res) => {
+app.get("/sensor",verifyToken, (req, res) => {
   Sensor.find((err, sensor) => {
     if (err) {
       return res.status(500).json({
@@ -19,7 +19,7 @@ app.get("/sensor", (req, res) => {
     });
   });
 });
-app.get("/sensor/:id", (req, res) => {
+app.get("/sensor/:id",verifyToken, (req, res) => {
   let id = req.params.id;
   Sensor.findById(id, (err, sensor) => {
     if (err) {
@@ -34,7 +34,7 @@ app.get("/sensor/:id", (req, res) => {
     });
   });
 });
-app.post("/sensor", (req, res) => {
+app.post("/sensor",verifyToken, (req, res) => {
   let body = req.body;
   let sensor = new Sensor({
     name: body.name,
@@ -59,7 +59,7 @@ app.post("/sensor", (req, res) => {
     });
   });
 });
-app.put("/sensor/:id", (req, res) => {
+app.put("/sensor/:id",verifyToken, (req, res) => {
   let id = req.params.id;
   let body = req.body;
   let sensorupdate = new Sensor({

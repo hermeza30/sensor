@@ -1,6 +1,7 @@
 const { io } = require("../server");
 const express = require("express");
 const EventSensor = require("../models/event");
+const {verifyToken}=require('../middleware/verifyToken');
 const app = express();
 
 io.on("connection", (client) => {
@@ -31,7 +32,7 @@ function returnEventsbyId(id) {
 }
 
 //POST EVENT
-app.post("/event", (req, res) => {
+app.post("/event",verifyToken, (req, res) => {
   let body = req.body;
   let ev = new EventSensor({
     sensorid: body.sensorid,
